@@ -1,29 +1,31 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
   branches:
     include:
       - master
 
 pool:
-  name: Default  # Change to an existing pool in your organization
+  name: Default
 
 variables:
   buildConfiguration: 'Release'
+  artifactName: 'MyWebApp'  # Change this to the desired name of your artifact
+  publishFolder: '$(Build.ArtifactStagingDirectory)/publish'
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
+- script: |
+    dotnet publish --configuration $(buildConfiguration) --output $(publishFolder) --no-build --no-restore
+  displayName: 'Publish Web App'
+
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'  # Corrected target path for artifacts
-    artifact: 'MyArtifact'  # Corrected artifact name
+    targetPath: '$(publishFolder)'
+    artifact: '$(artifactName)'
   displayName: 'Publish Artifact'
-  - script: |
+
+- script: |
     az artifacts universal publish --organization $(System.CollectionUri) --scope project --feed feedname --name $(artifactName) --version $(buildConfiguration) --description "Published from Azure Pipelines"
     # Optionally, you can delete the local published folder if it's not needed after the artifact is pushed to Azure Artifacts.
     rm -rf $(publishFolder)
