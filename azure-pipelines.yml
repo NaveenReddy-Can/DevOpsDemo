@@ -4,19 +4,22 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  branches:
+    include:
+      - master
 
 pool:
-  name: Default
-  
+  name: Default  # Change to an existing pool in your organization
+
 variables:
   buildConfiguration: 'Release'
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(publishFolder)'
-    artifact: '$(artifactName)'
-  displayName: 'Publish Artifact
+    targetPath: '$(Build.ArtifactStagingDirectory)'  # Corrected target path for artifacts
+    artifact: 'MyArtifact'  # Corrected artifact name
+  displayName: 'Publish Artifact'
