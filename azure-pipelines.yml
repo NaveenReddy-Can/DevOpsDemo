@@ -23,3 +23,8 @@ steps:
     targetPath: '$(Build.ArtifactStagingDirectory)'  # Corrected target path for artifacts
     artifact: 'MyArtifact'  # Corrected artifact name
   displayName: 'Publish Artifact'
+  - script: |
+    az artifacts universal publish --organization $(System.CollectionUri) --scope project --feed feedname --name $(artifactName) --version $(buildConfiguration) --description "Published from Azure Pipelines"
+    # Optionally, you can delete the local published folder if it's not needed after the artifact is pushed to Azure Artifacts.
+    rm -rf $(publishFolder)
+  displayName: 'Upload to Azure Artifacts'
